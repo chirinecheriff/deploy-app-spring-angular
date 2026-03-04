@@ -1,0 +1,38 @@
+name: CI/CD - Build & Push Docker Images
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build_push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Récupérer le code
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # 2) Se connecter à Docker Hub avec les secrets
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 3) Build image BACKEND (Dockerfile dans springboot/app)
+      - name: Build backend image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/spring-app:latest ./springboot/app
+
+      # 4) Build image FRONTEND (Dockerfile dans angular-app)
+      - name: Build frontend image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/angular-app:latest ./angular-app
+
+      # 5) Push les 2 images sur Docker Hub
+      - name: Push backend image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/spring-app:latest
+
+      - name: Push frontend image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/angular-app:latest
