@@ -1,10 +1,10 @@
-# --- Stage 1: build the jar ---
+# Stage 1 : build le jar avec Maven
 FROM maven:3.9-eclipse-temurin-11 AS build
 WORKDIR /app
 COPY . .
 RUN mvn -DskipTests package
 
-# --- Stage 2: run the app ---
+# Stage 2 : run l'application
 FROM eclipse-temurin:11
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
